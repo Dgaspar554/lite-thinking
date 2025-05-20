@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { toast } from "sonner";
 
 const initialCompanies = [
   {
@@ -46,21 +47,60 @@ export const DataProvider = ({ children }) => {
   const [companies, setCompanies] = useState([]);
   const [products, setProducts] = useState([]);
 
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "getCompanies",
+        {
+          method: "GET",
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCompanies(data);
+      }
+    } catch (error) {}
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "getProducts",
+        {
+          method: "GET",
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log(data);
+
+        setProducts(data);
+      }
+    } catch (error) {}
+  };
+
   useEffect(() => {
-    const savedCompanies = localStorage.getItem("companies");
-    const savedProducts = localStorage.getItem("products");
+    fetchCompanies();
+    fetchProducts();
 
-    if (savedCompanies) {
-      setCompanies(JSON.parse(savedCompanies));
-    } else {
-      setCompanies(initialCompanies);
-    }
+    // const savedCompanies = localStorage.getItem("companies");
+    // const savedProducts = localStorage.getItem("products");
 
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      setProducts(initialProducts);
-    }
+    // if (savedCompanies) {
+    //   setCompanies(JSON.parse(savedCompanies));
+    // } else {
+    //   setCompanies(initialCompanies);
+    // }
+
+    // if (savedProducts) {
+    //   setProducts(JSON.parse(savedProducts));
+    // } else {
+    //   setProducts(initialProducts);
+    // }
   }, []);
 
   useEffect(() => {
@@ -71,51 +111,117 @@ export const DataProvider = ({ children }) => {
     localStorage.setItem("products", JSON.stringify(products));
   }, [products]);
 
-  const addCompany = (company) => {
-    setCompanies([...companies, company]);
-  };
-
-  const updateCompany = (company) => {
-    setCompanies(companies.map((c) => (c.nit === company.nit ? company : c)));
-    const oldCompany = companies.find((c) => c.nit === company.nit);
-    if (oldCompany && oldCompany.name !== company.name) {
-      setProducts(
-        products.map((p) =>
-          p.companyNit === company.nit ? { ...p, companyName: company.name } : p
-        )
+  const addCompany = async (company) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "postCompanies",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(company),
+        }
       );
-    }
+
+      if (response.ok) {
+        fetchCompanies();
+      }
+    } catch (error) {}
   };
 
-  const deleteCompany = (nit) => {
-    setCompanies(companies.filter((c) => c.nit !== nit));
-    setProducts(products.filter((p) => p.companyNit !== nit));
+  const updateCompany = async (company) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "putCompanies/" + company.id,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(company),
+        }
+      );
+
+      if (response.ok) {
+        fetchCompanies();
+      }
+    } catch (error) {}
   };
 
-  const addProduct = (product) => {
-    const newProduct = {
-      ...product,
-      companyName: companies.find((c) => c.nit === product.companyNit)?.name,
-    };
-    setProducts([...products, newProduct]);
+  const deleteCompany = async (id) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "deleteCompanies/" + id,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        fetchCompanies();
+        fetchProducts();
+      }
+    } catch (error) {}
   };
 
-  const updateProduct = (product) => {
-    setProducts(
-      products.map((p) =>
-        p.id === product.id
-          ? {
-              ...product,
-              companyName: companies.find((c) => c.nit === product.companyNit)
-                ?.name,
-            }
-          : p
-      )
-    );
+  const addProduct = async (product) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "postProducts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(product),
+        }
+      );
+
+      if (response.ok) {
+        fetchProducts();
+      }
+    } catch (error) {}
   };
 
-  const deleteProduct = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
+  const updateProduct = async (product) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "putProducts/" + product.id,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(product),
+        }
+      );
+
+      if (response.ok) {
+        fetchProducts();
+      }
+    } catch (error) {}
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "deleteProducts/" + id,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        fetchProducts();
+      }
+    } catch (error) {}
   };
 
   const getCompanyName = (nit) => {

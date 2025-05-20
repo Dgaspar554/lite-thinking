@@ -32,7 +32,7 @@ const Inventory = () => {
 
   const filteredProducts = products.filter(
     (product) =>
-      (selectedCompany === "all" || product.companyNit === selectedCompany) &&
+      (selectedCompany === "all" || product.id_company == selectedCompany) &&
       (product.name.toLowerCase().includes(search.toLowerCase()) ||
         product.characteristics.toLowerCase().includes(search.toLowerCase()))
   );
@@ -58,7 +58,7 @@ const Inventory = () => {
       doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 32);
 
       if (selectedCompany !== "all") {
-        const company = companies.find((c) => c.nit === selectedCompany);
+        const company = companies.find((c) => c.id === selectedCompany);
         if (company) {
           doc.text(`Empresa: ${company.name} (NIT: ${company.nit})`, 14, 38);
         }
@@ -75,7 +75,7 @@ const Inventory = () => {
       const data = filteredProducts.map((product) => [
         product.id,
         product.name,
-        companies.find((c) => c.nit === product.companyNit)?.name || "N/A",
+        product.company_name,
         product.characteristics,
         `$${product.price.usd.toFixed(2)}`,
       ]);
@@ -140,10 +140,13 @@ const Inventory = () => {
     );
 
     try {
-      const response = await fetch("http://localhost:8000/send-email/", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        import.meta.env.VITE_URL_BASE + "send-email/",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -197,7 +200,7 @@ const Inventory = () => {
           >
             <option value="all">Todas las empresas</option>
             {companies.map((company) => (
-              <option key={company.nit} value={company.nit}>
+              <option key={company.id} value={company.id}>
                 {company.name}
               </option>
             ))}
@@ -236,14 +239,11 @@ const Inventory = () => {
               </TableHeader>
               <TableBody>
                 {filteredProducts.map((product) => {
-                  const companyName =
-                    companies.find((c) => c.nit === product.companyNit)?.name ||
-                    "N/A";
                   return (
                     <TableRow key={product.id}>
                       <TableCell>{product.id}</TableCell>
                       <TableCell>{product.name}</TableCell>
-                      <TableCell>{companyName}</TableCell>
+                      <TableCell>{product.company_name}</TableCell>
                       <TableCell>{product.characteristics}</TableCell>
                       <TableCell>${product.price.usd.toFixed(2)}</TableCell>
                       <TableCell>€{product.price.eur.toFixed(2)}</TableCell>

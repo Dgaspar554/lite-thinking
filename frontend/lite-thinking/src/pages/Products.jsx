@@ -41,7 +41,7 @@ const Products = () => {
       eur: 0,
       cop: 0,
     },
-    companyNit: "",
+    id_company: "",
   });
   const [selectedCurrency, setSelectedCurrency] = useState("usd");
   const [isEditing, setIsEditing] = useState(false);
@@ -60,7 +60,7 @@ const Products = () => {
   };
 
   const handleCompanyChange = (value) => {
-    setFormData({ ...formData, companyNit: value });
+    setFormData({ ...formData, id_company: Number(value) });
   };
 
   const handlePriceChange = (e) => {
@@ -92,7 +92,7 @@ const Products = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.characteristics || !formData.companyNit) {
+    if (!formData.name || !formData.characteristics || !formData.id_company) {
       toast({
         title: "Error de validación",
         description: "Todos los campos son obligatorios",
@@ -111,8 +111,10 @@ const Products = () => {
       } else {
         const newProduct = {
           ...formData,
-          id: Math.random().toString(36).substr(2, 9),
+          id_company: formData.id_company,
         };
+        console.log(newProduct);
+
         addProduct(newProduct);
         toast({
           title: "Producto agregado",
@@ -129,7 +131,7 @@ const Products = () => {
           eur: 0,
           cop: 0,
         },
-        companyNit: "",
+        id_company: "",
       });
       setIsEditing(false);
     } catch (error) {
@@ -166,7 +168,7 @@ const Products = () => {
         eur: 0,
         cop: 0,
       },
-      companyNit: "",
+      id_company: "",
     });
     setIsEditing(false);
   };
@@ -209,9 +211,9 @@ const Products = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="companyNit">Empresa</Label>
+                <Label htmlFor="id_company">Empresa</Label>
                 <Select
-                  value={formData.companyNit}
+                  value={formData.id_company}
                   onValueChange={handleCompanyChange}
                 >
                   <SelectTrigger>
@@ -219,7 +221,7 @@ const Products = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {companies.map((company) => (
-                      <SelectItem key={company.nit} value={company.nit}>
+                      <SelectItem key={company.id} value={company.id}>
                         {company.name}
                       </SelectItem>
                     ))}
@@ -303,41 +305,41 @@ const Products = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => {
-                  const company = companies.find(
-                    (c) => c.nit === product.companyNit
-                  );
-                  return (
-                    <TableRow key={product.id}>
-                      <TableCell>{product.id}</TableCell>
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell>
-                        {company ? company.name : "No asignada"}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(product.price.usd, "USD")}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(product.price.eur, "EUR")}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(product.price.cop, "COP")}
-                      </TableCell>
-                      <TableCell className="space-x-2">
-                        <Button size="sm" onClick={() => handleEdit(product)}>
-                          Editar
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDelete(product.id)}
-                        >
-                          Eliminar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {products.length > 0 &&
+                  products.map((product) => {
+                    return (
+                      <TableRow key={product.id}>
+                        <TableCell>{product.id}</TableCell>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>
+                          {product.company_name
+                            ? product.company_name
+                            : "No asignada"}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(product.price.usd, "USD")}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(product.price.eur, "EUR")}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(product.price.cop, "COP")}
+                        </TableCell>
+                        <TableCell className="space-x-2">
+                          <Button size="sm" onClick={() => handleEdit(product)}>
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(product.id)}
+                          >
+                            Eliminar
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
             </Table>
           ) : (

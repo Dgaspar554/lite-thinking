@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -97,13 +97,13 @@ const Companies = () => {
     setIsEditing(true);
   };
 
-  const handleDelete = (nit) => {
+  const handleDelete = (id) => {
     if (
       confirm(
         "¿Estás seguro de eliminar esta empresa? También se eliminarán todos sus productos."
       )
     ) {
-      deleteCompany(nit);
+      deleteCompany(id);
       toast({
         title: "Empresa eliminada",
         description: "La empresa ha sido eliminada correctamente",
@@ -232,7 +232,7 @@ const Companies = () => {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDelete(company.nit)}
+                        onClick={() => handleDelete(company.id)}
                       >
                         Eliminar
                       </Button>
