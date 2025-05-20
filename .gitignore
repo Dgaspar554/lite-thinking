@@ -1,1 +1,3 @@
-frontend/node_modules
+frontend/lite-thinking/node_modules
+frontend/lite-thinking/*.env
+.env
